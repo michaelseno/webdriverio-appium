@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  appium:
+    image: appium/appium
+    container_name: appium
+    ports:
+      - "4723:4723"
+
+  tests:
+    build: .
+    container_name: webdriverio-appium
+    depends_on:
+      - appium
+    volumes:
+      - .:/app
+    command: ["npx", "wdio", "run", "./wdio.conf.js"]
