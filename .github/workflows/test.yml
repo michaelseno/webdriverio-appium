@@ -17,9 +17,11 @@ jobs:
           - "4723:4723"
         options: >-
           --health-cmd "curl --fail http://localhost:4723/wd/hub/status || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-interval 15s
+          --health-timeout 10s
+          --health-retries 10
+          --memory 2g
+          --cpus 2
 
     steps:
     - name: Checkout code
@@ -33,5 +35,14 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Verify Appium service
+      run: |
+        echo "Checking if Appium is reachable..."
+        curl -s http://localhost:4723/wd/hub/status || exit 1
+
     - name: Run tests
       run: npx wdio run ./wdio.conf.js
+
+    - name: Debug appium logs
+      if: failure()
+      run: docker logs $(docker ps -q --filter ancestor=appium/appium)
